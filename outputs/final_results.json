@@ -1,0 +1,30 @@
+{
+  "phase1_unet": {
+    "sdr": 3.22,
+    "params": 3349697,
+    "notes": "magnitude U-Net baseline"
+  },
+  "phase2_hgcn": {
+    "sdr": 3.12,
+    "params": 2301634,
+    "notes": "harmonic GCN bottleneck, -31% params"
+  },
+  "phase3_clap": {
+    "sdr": 3.8,
+    "params": 2695362,
+    "notes": "CLAP text-guided vocals"
+  },
+  "phase6_hybrid": {
+    "sdr": 5.25,
+    "params": "GSN+Demucs",
+    "notes": "hybrid system, all 4 stems"
+  },
+  "songs_tested": 3,
+  "individual_sdrs": [
+    3.43,
+    5.97,
+    6.35
+  ],
+  "dataset": "MUSDB18-HQ",
+  "evaluation_metric": "SI-SDR (dB)"
+}

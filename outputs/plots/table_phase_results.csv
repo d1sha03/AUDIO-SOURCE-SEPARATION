@@ -1,0 +1,7 @@
+Phase,Model,Architecture,Val SI-SDR (dB),Δ from Baseline (dB),Key Finding,Params (M),Inference (ms/10s)
+0,Setup,Environment,,,"GPU ready, all deps installed",0.0,0
+1,U-Net Baseline,Encoder-Decoder U-Net,3.22,0.0,Clean baseline with skip connections,2.1,45
+2,U-Net + H-GCN,U-Net + Graph Conv,3.12,-0.1,Harmonic graph reduced performance,2.3,50
+3,GSN + CLAP,U-Net + CLAP routing,3.8,0.58,Text guidance improved learning,2.1,48
+4,Complex DSP,Complex STFT,,,Stability & phase improvements,2.1,52
+Final,Demucs + GSN + CLAP,Hybrid cascade,5.25,2.03,Cascading models is the win,65.0,1200
