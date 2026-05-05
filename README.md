@@ -1,4 +1,5 @@
-
+Please note: The research paper is under-review.
+Kindly refer to the project report attached in the docs/ directory.
 ---
 
 # GSN: Graph-Semantic-Net
@@ -80,13 +81,3 @@ The core innovation is the **Harmonic Adjacency Matrix**. Unlike standard CNNs t
 
 ---
 
-## 📜 Citation
-If you use this work in your research, please cite:
-```bibtex
-@article{saini2026gsn,
-  title={GSN: Graph-Semantic-Net for Real-Time Vocal Extraction via Harmonic-Aware Refinement},
-  author={Saini, Disha},
-  year={2026},
-  journal={NIELIT Technical Research}
-}
-```
