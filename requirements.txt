@@ -1,0 +1,10 @@
+streamlit
+torch
+torchaudio
+demucs
+librosa
+matplotlib
+transformers
+numpy
+pandas
+scipy
