@@ -8,3 +8,4 @@ transformers
 numpy
 pandas
 scipy
+soundfile
