@@ -125,7 +125,7 @@ def _detect_source(prompt: str) -> str:
 
 def _find_checkpoint():
     roots = [Path.cwd(), Path.cwd() / "weights"]
-    keywords = ["phase", "checkpoint", "gsn", "unet", "final", "best"]
+    keywords = ["phase", "checkpoint", "gsn", "unet", "final", "best", "refiner", "vocal"]
     for root in roots:
         if not root.exists():
             continue
@@ -306,13 +306,14 @@ def main():
     engine = None
 
     if not ckpt:
-        st.warning("Enter a checkpoint path in the sidebar.")
+        pass # components.py handles the warning if empty
     elif not Path(ckpt).exists():
         found = _find_checkpoint()
-        st.error(f"Path does not exist: `{ckpt}`")
         if found:
-            st.success(f"Found a checkpoint at: `{found}`")
-            st.info("Copy the path above into the sidebar field.")
+            st.info(f"💡 Suggested checkpoint found at: `{found}`")
+            if st.button("Use this checkpoint"):
+                st.session_state["gsn_ckpt_manual"] = found
+                st.rerun()
     else:
         with st.spinner("Loading GSN inference engine..."):
             engine, err = _load_engine(ckpt, params["device"])

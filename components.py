@@ -298,6 +298,9 @@ def log_html(pct, message):
 # ---------------------------------------------------------------------------
 
 def render_sidebar(ckpt_default=""):
+    if "gsn_ckpt_manual" in st.session_state:
+        ckpt_default = st.session_state["gsn_ckpt_manual"]
+
     with st.sidebar:
         st.markdown("""
         <div style="text-align:center;padding:14px 0 6px;">
@@ -433,12 +436,12 @@ def _make_display_name(pt_path, root):
     # Detect phase from folder or filename
     phase = ""
     for keyword, label in [
-        ("phase1", "Phase 1"),
-        ("phase2", "Phase 2"),
-        ("phase3", "Phase 3"),
-        ("phase4", "Phase 4"),
-        ("phase5", "Phase 5"),
-        ("phase6", "Phase 6"),
+        ("phase4", "GSN Full Hybrid"),
+        ("phase3", "Semantic Refiner"),
+        ("phase2", "Harmonic Refiner"),
+        ("phase1", "U-Net Baseline"),
+        ("gsn_best", "GSN Optimized"),
+        ("final", "Final Production"),
     ]:
         if keyword in name or keyword in parent:
             phase = label
@@ -527,7 +530,7 @@ def _render_checkpoint_selector(ckpt_default=""):
             custom = st.text_input(
                 "Custom checkpoint path",
                 value="",
-                placeholder="C:\\path\\to\\your\\model.pt",
+                placeholder="weights/gsn_best.pt",
                 label_visibility="collapsed",
             )
             if custom.strip():
@@ -550,34 +553,34 @@ def _render_checkpoint_selector(ckpt_default=""):
 
     else:
         # No checkpoints found — manual entry only
+        st.warning("No trained GSN weights found.")
         st.markdown(
-            '<div style="font-size:0.78rem;color:#F59E0B;'
-            'margin-bottom:8px;">No .pt files detected in project.</div>',
-            unsafe_allow_html=True,
+            '<div style="font-size:0.75rem; color:#6B7280; margin-bottom:12px;">'
+            "The app is currently running in <b>Demucs-only baseline mode</b>. "
+            "To enable GSN refinement, please provide a path to a <code>.pt</code> checkpoint."
+            '</div>',
+            unsafe_allow_html=True
         )
 
         manual_path = st.text_input(
-            "Checkpoint path",
+            "Enter weights path:",
             value=ckpt_default or "",
-            placeholder="C:\\path\\to\\best_model.pt",
-            label_visibility="collapsed",
+            placeholder="e.g. weights/gsn_vocal_refiner.pt",
+            label_visibility="visible",
         )
 
         if manual_path.strip():
             import os
             exists = os.path.exists(manual_path.strip())
             color  = "#10B981" if exists else "#F43F5E"
-            label  = "File found" if exists else "File not found"
+            label  = "✅ Model Loaded" if exists else "❌ File not found"
             st.markdown(
-                f'<span style="font-size:0.72rem;color:{color};">'
-                f'{label}</span>',
+                f'<div style="font-size:0.72rem; color:{color}; font-weight:600; margin-top:4px;">'
+                f'{label}</div>',
                 unsafe_allow_html=True,
             )
             return manual_path.strip()
 
-        st.caption(
-            "Run in terminal to find checkpoints:\n"
-            'Get-ChildItem -Recurse -Filter "*.pt"'
-        )
+        st.info("Expected: `gsn_best.pt` or `phase4_final.pt`")
 
         return ""
