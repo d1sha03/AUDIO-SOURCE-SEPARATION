@@ -480,8 +480,8 @@ def _make_display_name(pt_path, root):
 
 def _render_checkpoint_selector(ckpt_default=""):
     """
-    Render checkpoint selection UI.
-    Returns the selected checkpoint path as a string.
+    Render fixed checkpoint selection menu.
+    Returns the selected checkpoint path as a string or None.
     """
     st.markdown(
         '<div style="font-size:0.85rem;font-weight:700;'
@@ -489,98 +489,79 @@ def _render_checkpoint_selector(ckpt_default=""):
         unsafe_allow_html=True,
     )
 
-    # Scan for available checkpoints
-    checkpoints = _scan_checkpoints()
+    # Pre-defined checkpoint mapping
+    MODELS = {
+        "Demucs Baseline":  {"path": None, "desc": "Runs Demucs-only mode (No GSN)"},
+        "Vocal Refiner":    {"path": "weights/gsn_vocal_refiner.pt", "desc": "Targeted vocal enhancement"},
+        "Drums Refiner":    {"path": "weights/gsn_drums_refiner.pt", "desc": "Targeted percussion enhancement"},
+        "Bass Refiner":     {"path": "weights/gsn_bass_refiner.pt",  "desc": "Targeted low-end enhancement"},
+    }
 
-    if checkpoints:
-        # Dropdown selector
-        options = list(checkpoints.keys())
-        paths   = list(checkpoints.values())
+    # Selection dropdown
+    options = list(MODELS.keys())
 
-        # Find default index
-        default_idx = 0
-        if ckpt_default:
-            for i, p in enumerate(paths):
-                if ckpt_default in p:
-                    default_idx = i
-                    break
+    # Try to match ckpt_default to one of our labels if possible
+    default_idx = 0
+    if ckpt_default:
+        for i, (label, info) in enumerate(MODELS.items()):
+            if info["path"] and ckpt_default in info["path"]:
+                default_idx = i
+                break
 
-        selected_label = st.selectbox(
-            "Select checkpoint",
-            options=options,
-            index=default_idx,
-            label_visibility="collapsed",
-            help="Auto-detected .pt files from your project directory.",
-        )
+    selected_label = st.selectbox(
+        "Select model refinement",
+        options=options,
+        index=default_idx,
+        label_visibility="collapsed",
+    )
 
-        selected_path = checkpoints[selected_label]
+    selected_info = MODELS[selected_label]
+    selected_path = selected_info["path"]
 
-        # Show path and status
+    # Dynamic status and description
+    if selected_path is None:
         st.markdown(
-            f'<div style="font-size:0.72rem;color:#10B981;'
-            f'margin-top:4px;">File found</div>'
-            f'<div style="font-size:0.68rem;color:#4B5563;'
-            f'word-break:break-all;margin-top:2px;">'
-            f'{selected_path}</div>',
-            unsafe_allow_html=True,
-        )
-
-        # Option to enter custom path
-        with st.expander("Enter path manually"):
-            custom = st.text_input(
-                "Custom checkpoint path",
-                value="",
-                placeholder="weights/gsn_best.pt",
-                label_visibility="collapsed",
-            )
-            if custom.strip():
-                import os
-                if os.path.exists(custom.strip()):
-                    st.markdown(
-                        '<span style="font-size:0.72rem;color:#10B981;">'
-                        'File found</span>',
-                        unsafe_allow_html=True,
-                    )
-                    return custom.strip()
-                else:
-                    st.markdown(
-                        '<span style="font-size:0.72rem;color:#F43F5E;">'
-                        'File not found</span>',
-                        unsafe_allow_html=True,
-                    )
-
-        return selected_path
-
-    else:
-        # No checkpoints found — manual entry only
-        st.warning("No trained GSN weights found.")
-        st.markdown(
-            '<div style="font-size:0.75rem; color:#6B7280; margin-bottom:12px;">'
-            "The app is currently running in <b>Demucs-only baseline mode</b>. "
-            "To enable GSN refinement, please provide a path to a <code>.pt</code> checkpoint."
+            '<div style="font-size:0.75rem; color:#6B7280; margin-top:4px;">'
+            "<b>Demucs-only baseline mode</b> active. GSN refinement disabled."
             '</div>',
             unsafe_allow_html=True
         )
+    else:
+        import os
+        exists = os.path.exists(selected_path)
+        color = "#10B981" if exists else "#F43F5E"
+        status = "GSN Enabled" if exists else "Weights Missing"
 
-        manual_path = st.text_input(
-            "Enter weights path:",
-            value=ckpt_default or "",
-            placeholder="e.g. weights/gsn_vocal_refiner.pt",
-            label_visibility="visible",
+        st.markdown(
+            f'<div style="font-size:0.75rem; color:{color}; font-weight:600; margin-top:4px;">'
+            f'{status} &middot; {selected_label}</div>'
+            f'<div style="font-size:0.70rem; color:#4B5563; margin-top:2px;">'
+            f'{selected_info["desc"]}</div>',
+            unsafe_allow_html=True
         )
 
-        if manual_path.strip():
+    # Manual override for power users
+    with st.expander("Manual Path Override"):
+        custom = st.text_input(
+            "Enter path manually",
+            value="",
+            placeholder="weights/custom_refiner.pt",
+            label_visibility="collapsed",
+        )
+        if custom.strip():
             import os
-            exists = os.path.exists(manual_path.strip())
-            color  = "#10B981" if exists else "#F43F5E"
-            label  = "✅ Model Loaded" if exists else "❌ File not found"
-            st.markdown(
-                f'<div style="font-size:0.72rem; color:{color}; font-weight:600; margin-top:4px;">'
-                f'{label}</div>',
-                unsafe_allow_html=True,
-            )
-            return manual_path.strip()
+            if os.path.exists(custom.strip()):
+                st.markdown(
+                    '<span style="font-size:0.72rem;color:#10B981;">'
+                    '✅ Custom Model Loaded</span>',
+                    unsafe_allow_html=True,
+                )
+                return custom.strip()
+            else:
+                st.markdown(
+                    '<span style="font-size:0.72rem;color:#F43F5E;">'
+                    '❌ File not found</span>',
+                    unsafe_allow_html=True,
+                )
 
-        st.info("Expected: `gsn_best.pt` or `phase4_final.pt`")
-
-        return ""
+    return selected_path

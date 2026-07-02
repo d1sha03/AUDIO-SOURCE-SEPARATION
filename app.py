@@ -302,11 +302,11 @@ def main():
 
     params = render_sidebar()
 
-    ckpt = params["gsn_ckpt"].strip()
+    ckpt = params["gsn_ckpt"]
     engine = None
 
-    if not ckpt:
-        pass # components.py handles the warning if empty
+    if ckpt is None:
+        pass # Baseline mode
     elif not Path(ckpt).exists():
         found = _find_checkpoint()
         if found:
