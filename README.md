@@ -1,3 +1,13 @@
+---
+title: GSN Audio Separation
+emoji: 🎵
+colorFrom: indigo
+colorTo: blue
+sdk: streamlit
+app_file: app.py
+pinned: false
+---
+
 Please note: The research paper is under-review.
 Kindly refer to the project report attached in the docs/ directory.
 ---

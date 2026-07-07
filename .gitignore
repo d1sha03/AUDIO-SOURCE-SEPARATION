@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*.class
+.env
+.venv
+env/
+venv/
+ENV/
+outputs/
+weights/*.pt
+!weights/README_WEIGHTS.md
